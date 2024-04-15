@@ -19,10 +19,33 @@ public class BufMgr {
         lruQueue = new ArrayList<>();
     }
 
+    //"I want page X"
     public void pin(int pageNum) {
-        // your code goes here
+        Integer frameNum = bufTbl.lookup(pageNum);
+        if (frameNum == -1) {
+            //implements LRU replacement policy
+            if (used < poolSize) {
+                for (int i = 0; i < poolSize; i++) {
+                    if (pool[i] == null) {
+                        pool[i] = new Frame("This is page " + pageNum + ".");
+                        bufTbl.insert(pageNum, i);
+                        lruQueue.add(i);
+                        used++;
+                        return;
+                    }
+                }
+            } else {
+                int frameToReplace = lruQueue.get(0);
+                lruQueue.remove(0);
+                pool[frameToReplace] = new Frame("This is page " + pageNum + ".");
+                bufTbl.remove(pageNum, frameToReplace);
+                bufTbl.insert(pageNum, frameToReplace);
+                lruQueue.add(frameToReplace);
+            }
+        }
     }
 
+    //"I am done with page X"
     public void unpin(int pageNum) {
         // your code goes here
     }
@@ -52,14 +75,14 @@ public class BufMgr {
 
     public void displayPage(int pageNum) {
         Integer frameNum = bufTbl.lookup(pageNum);
-        if (frameNum == null) throw new IllegalArgumentException("Cannot display page that is not in memory");
+        if (frameNum == -1) throw new IllegalArgumentException("Cannot display page that is not in memory");
 
         pool[frameNum].displayPage();
     }
 
     public void updatePage(int pageNum, String toAppend) {
         Integer frameNum = bufTbl.lookup(pageNum);
-        if (frameNum == null) throw new IllegalArgumentException("Cannot update page that is not in memory");
+        if (frameNum == -1) throw new IllegalArgumentException("Cannot update page that is not in memory");
 
         pool[frameNum].updatePage(toAppend);
     }

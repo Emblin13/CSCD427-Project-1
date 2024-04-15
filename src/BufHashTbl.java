@@ -13,16 +13,27 @@ public class BufHashTbl {
     }
 
     public void insert(int pageNum, int frameNum) {
-        // your code goes here
+        BufTblRecord newRecord = new BufTblRecord(pageNum, frameNum);
+        records.get(pageNum % tableSize).add(newRecord);
     }
 
+
     public int lookup(int pageNum) {
-        // your code goes here
-        return 0;  // you need to change the returned value
+        for (BufTblRecord record : records.get(pageNum % tableSize)) {
+            if (record.pageNum == pageNum) {
+                return record.frameNum;
+            }
+        }
+        return -1; //framenum not found
     }
 
     public boolean remove(int pageNum, int frameNum) {
-        // your code goes here
+        for (BufTblRecord record : records.get(pageNum % tableSize)) {
+            if (record.pageNum == pageNum && record.frameNum == frameNum) {
+                records.get(pageNum % tableSize).remove(record);
+                return true;
+            }
+        }
         return true; // you need to change the returned value
     }
 
